@@ -7,18 +7,13 @@ Nesse desafio trabalharemos utilizando a base de dados da empresa Bike Stores In
 
 Com isso, teremos que trabalhar com várioas consultas utilizando conceitos como `INNER JOIN`, `LEFT JOIN`, `RIGHT JOIN`, `GROUP BY` e `COUNT`.
 
-### Antes de começar
- 
-- O projeto deve utilizar a Linguagem específica na avaliação. Por exempo: SQL, T-SQL, PL/SQL e PSQL;
-- Considere como deadline da avaliação a partir do início do teste. Caso tenha sido convidado a realizar o teste e não seja possível concluir dentro deste período, avise a pessoa que o convidou para receber instruções sobre o que fazer.
-- Documentar todo o processo de investigação para o desenvolvimento da atividade (README.md no seu repositório); os resultados destas tarefas são tão importantes do que o seu processo de pensamento e decisões à medida que as completa, por isso tente documentar e apresentar os seus hipóteses e decisões na medida do possível.
  
  
 
 ## O projeto
 
-- Criar as consultas utilizando a linguagem escolhida;
-- Entregar o código gerado do Teste.
+- Consultas utilizando a linguagem SQL ANSI;
+- Explicação das consultas abaixo.
 
 ### Modelo de Dados:
 
@@ -31,26 +26,85 @@ Para entender o modelo, revisar o diagrama a seguir:
 
 Construir as seguintes consultas:
 
+Obeservação todas as consultas estão escritas utilizando SQL ANSI.
+
 - Listar todos Clientes que não tenham realizado uma compra;
+
+- Explicação: utlizando LEFT JOIN fazemos a relação de todas as linhas de 
+customer com todas as linhas de orders independente de haver ou não 
+correspondencia. Quando uma linha de customers não tem relação com nenhuma
+linha de orders o campo customer_id é nulo.
+    
+    ``` 
+  SELECT c.* 
+    FROM customers c
+    LEFT JOIN orders o ON c.customer_id = o.customer_id
+    WHERE o.customer_id IS NULL;
+
 - Listar os Produtos que não tenham sido comprados
+
+- Explicação: utlizando LEFT JOIN fazemos a relação de todas as linhas de
+products com todas as linhas de orders_items independente de haver ou não
+correspondencia. Quando uma linha de products não tem relação com nenhuma
+linha de orders_items o campo order_id é nulo.
+
+  ```
+    SELECT p.*
+    FROM products p 
+    LEFT JOIN order_items o ON p.product_id = o.product_id
+    WHERE o.order_id IS NULL;
+
 - Listar os Produtos sem Estoque;
+- Explicação: utlizando INNER JOIN fazemos a relação de todas as linhas de
+  products com todas as linhas de products em que há correspondecia com linha
+- de stoks. Colocamos uma condição para somente retornar quando o stock for zero;
+utilizando a clausula WHERE
+
+    ```
+    SELECT p.*
+    FROM products p
+    INNER JOIN stocks s ON s.product_id = p.product_id
+    WHERE s.quantity = 0;   
+    
 - Agrupar a quantidade de vendas que uma determinada Marca por Loja. 
+- Explicação: Confome o diagrama precisamos de dados de todas tabelas,citadas na consulta.
+- Estamos usando uma agregação agrupando primeiro por loja, depois quantidade vendida.
+- Usando join garantimos que seam exibidas apenas as linhas que tenham todas as correspondencias em todas as tabelas.
+
+    ```
+    SELECT
+        s.store_name,
+        b.brand_name
+        SUM(o.quantity) AS totalt_quantity_sold
+        FROM
+            orders_items_oi
+        JOIN
+            products p ON oi.product_id = p.product_id
+        JOIN
+            brands b ON p.brand_id = b.brand_id
+        JOIN
+            orders o ON oi.order_id =o.order_id
+        JOIN
+            stores s ON o.store_id s.store_id
+         GROUP BY
+            s.store_name, b.brand_name
+         ORDER BY
+            s.store_name, total_quantity_sold
+         DESC;
+     
+     
 - Listar os Funcionarios que não estejam relacionados a um Pedido.
+  explicação: utlizando LEFT JOIN fazemos a relação de todas as linhas de
+  stafs com todas as linhas de orders independente de haver ou não
+  correspondencia. Quando uma linha de stafs não tem relação com nenhuma
+  linha de orders o campo staf_id é nulo.
+    ```
+    Select s.* 
+    FROM staffs s
+    LEFT JOIN orders o ON s.staff_id = o.staf_id
+    WHERE o.staff_id IS NULL
+- Como executar, execute o arquivo script.sql em um cliente de banco de dados compativel com SQL como DBeaver ou SQLExplorer apos ter se conectado ao banco.
+
+ 
 
 
-## Readme do Repositório
-
-- Deve conter o título do projeto
-- Uma descrição sobre o projeto em frase
-- Deve conter uma lista com linguagem, framework e/ou tecnologias usadas
-- Como instalar e usar o projeto (instruções)
-- Não esqueça o [.gitignore](https://www.toptal.com/developers/gitignore)
-- Se está usando github pessoal, referencie que é um challenge by coodesh:  
-
->  This is a challenge by [Coodesh](https://coodesh.com/)
-
-## Finalização e Instruções para a Apresentação
-
-1. Adicione o link do repositório com a sua solução no teste
-2. Verifique se o Readme está bom e faça o commit final em seu repositório;
-3. Envie e aguarde as instruções para seguir. Sucesso e boa sorte. =)
