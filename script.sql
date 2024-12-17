@@ -41,4 +41,4 @@ SELECT
  Select s.*
      FROM staffs s
      LEFT JOIN orders o ON s.staff_id = o.staf_id
-     WHERE o.staff_id IS NULL
+     WHERE o.staff_id IS NULL;
